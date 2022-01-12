@@ -13,7 +13,7 @@ import com.forum.forum.repositories.UserRepository;
 
 @Service
 public class UserService {
-	
+
 	@Autowired
 	private UserRepository repository;
 
@@ -21,5 +21,12 @@ public class UserService {
 	public List<UserDTO> findAll() {
 		List<User> list = repository.findAll();
 		return list.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+	}
+
+	@Transactional
+	public UserDTO insert(UserDTO dto) {
+		User User = new User(null, dto.getName(), dto.getImgUrl());
+		User = repository.save(User);
+		return new UserDTO(User);
 	}
 }
