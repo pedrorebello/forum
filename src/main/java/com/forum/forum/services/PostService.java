@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.forum.forum.dto.PostDTO;
+import com.forum.forum.dto.TopicDTO;
 import com.forum.forum.entities.Post;
+import com.forum.forum.entities.Topic;
 import com.forum.forum.repositories.PostRepository;
 import com.forum.forum.repositories.TopicRepository;
 import com.forum.forum.repositories.UserRepository;
@@ -38,5 +40,15 @@ public class PostService {
 		Post Post = new Post(null, dto.getBody(), null, topicRepository.getById(dto.getTopic()), userRepository.getById(dto.getUser()));
 		Post = repository.save(Post);
 		return new PostDTO(Post);
+	}
+	
+	@Transactional
+	public PostDTO update(Long id, PostDTO dto) {
+		Post post = repository.getById(id);
+		
+		post.setBody(dto.getBody());
+		
+		post = repository.save(post);
+		return new PostDTO(post);
 	}
 }

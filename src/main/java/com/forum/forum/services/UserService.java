@@ -25,8 +25,19 @@ public class UserService {
 
 	@Transactional
 	public UserDTO insert(UserDTO dto) {
-		User User = new User(null, dto.getName(), dto.getImgUrl());
-		User = repository.save(User);
-		return new UserDTO(User);
+		User user = new User(null, dto.getName(), dto.getImgUrl());
+		user = repository.save(user);
+		return new UserDTO(user);
+	}
+
+	@Transactional
+	public UserDTO update(Long id, UserDTO dto) {
+		User user = repository.getById(id);
+		
+		user.setName(dto.getName());
+		user.setImgUrl(dto.getImgUrl());
+		
+		user = repository.save(user);
+		return new UserDTO(user);
 	}
 }

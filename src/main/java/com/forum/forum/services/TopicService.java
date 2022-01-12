@@ -33,4 +33,14 @@ public class TopicService {
 		Topic = repository.save(Topic);
 		return new TopicDTO(Topic);
 	}
+	
+	@Transactional
+	public TopicDTO update(Long id, TopicDTO dto) {
+		Topic topic = repository.getById(id);
+		
+		topic.setName(dto.getName());
+		
+		topic = repository.save(topic);
+		return new TopicDTO(topic);
+	}
 }
