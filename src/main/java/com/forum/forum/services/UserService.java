@@ -3,6 +3,8 @@ package com.forum.forum.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,19 +27,42 @@ public class UserService {
 
 	@Transactional
 	public UserDTO insert(UserDTO dto) {
-		User user = new User(null, dto.getName(), dto.getImgUrl());
-		user = repository.save(user);
-		return new UserDTO(user);
+		try {
+			User user = new User(null, dto.getName(), dto.getImgUrl());
+			user = repository.save(user);
+			return new UserDTO(user);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Transactional
 	public UserDTO update(Long id, UserDTO dto) {
-		User user = repository.getById(id);
-		
-		user.setName(dto.getName());
-		user.setImgUrl(dto.getImgUrl());
-		
-		user = repository.save(user);
-		return new UserDTO(user);
+		try {
+			User user = repository.getById(id);
+			
+			user.setName(dto.getName());
+			user.setImgUrl(dto.getImgUrl());
+			
+			user = repository.save(user);
+			return new UserDTO(user);
+		} catch (EntityNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}		
 	}
+	
+	@Transactional
+	public UserDTO delete(Long id) {
+		try {
+			User user = repository.getById(id);
+			repository.delete(user);
+			return new UserDTO(user);
+		} catch(EntityNotFoundException e)  {
+			e.printStackTrace();
+			return null;
+		}
+	}
+		
 }

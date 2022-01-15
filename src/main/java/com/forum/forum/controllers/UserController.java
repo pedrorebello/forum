@@ -4,7 +4,9 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,14 +35,34 @@ public class UserController {
 	@PostMapping
 	public ResponseEntity<UserDTO> insert(@RequestBody UserDTO dto) {
 		dto = service.insert(dto);
-		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-				.buildAndExpand(dto.getId()).toUri();
-		return ResponseEntity.created(uri).body(dto);
+
+		if(dto != null) {
+			URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+					.buildAndExpand(dto.getId()).toUri();
+			return ResponseEntity.created(uri).body(dto);
+		}
+
+		return new ResponseEntity<>(dto, HttpStatus.NOT_FOUND);
 	}
 
 	@PutMapping("/{id}")
 	public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserDTO dto) {
 		dto = service.update(id, dto);
-		return ResponseEntity.ok().body(dto);
+
+		if(dto != null)
+			return ResponseEntity.ok(dto);
+
+		return new ResponseEntity<>(dto, HttpStatus.NOT_FOUND);
 	}
+
+	@DeleteMapping("/{id}")
+	public ResponseEntity<UserDTO> delete(@PathVariable Long id) {
+		UserDTO dto = service.delete(id);
+		
+		if(dto != null)
+			return ResponseEntity.ok(dto);
+
+		return new ResponseEntity<>(dto, HttpStatus.NOT_FOUND);
+	}
+
 }

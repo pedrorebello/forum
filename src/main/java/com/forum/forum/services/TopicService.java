@@ -3,11 +3,15 @@ package com.forum.forum.services;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.forum.forum.dto.PostDTO;
 import com.forum.forum.dto.TopicDTO;
+import com.forum.forum.entities.Post;
 import com.forum.forum.entities.Topic;
 import com.forum.forum.repositories.TopicRepository;
 import com.forum.forum.repositories.UserRepository;
@@ -29,18 +33,42 @@ public class TopicService {
 
 	@Transactional
 	public TopicDTO insert(TopicDTO dto) {
-		Topic Topic = new Topic(null, dto.getName(), null, userRepository.getById(dto.getUser()));
-		Topic = repository.save(Topic);
-		return new TopicDTO(Topic);
+		try {
+			Topic Topic = new Topic(null, dto.getName(), null, userRepository.getById(dto.getUser()));
+			Topic = repository.save(Topic);
+			return new TopicDTO(Topic);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	@Transactional
 	public TopicDTO update(Long id, TopicDTO dto) {
-		Topic topic = repository.getById(id);
+		try {
+			Topic topic = repository.getById(id);
+			
+			topic.setName(dto.getName());
+			
+			topic = repository.save(topic);
+			return new TopicDTO(topic);
+		} catch (EntityNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	@Transactional
+	public TopicDTO delete(Long id) {
 		
-		topic.setName(dto.getName());
+		try {
+			Topic topic = repository.getById(id);
+			repository.delete(topic);
+			return new TopicDTO(topic);
+		} catch(EntityNotFoundException e)  {
+			e.printStackTrace();
+			return null;
+		}
 		
-		topic = repository.save(topic);
-		return new TopicDTO(topic);
 	}
 }

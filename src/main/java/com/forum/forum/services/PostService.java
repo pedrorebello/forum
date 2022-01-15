@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +24,6 @@ public class PostService {
 	@Autowired
 	private PostRepository repository;
 	
-
 	@Autowired
 	private UserRepository userRepository;
 
@@ -37,18 +38,41 @@ public class PostService {
 	
 	@Transactional
 	public PostDTO insert(PostDTO dto) {
-		Post Post = new Post(null, dto.getBody(), null, topicRepository.getById(dto.getTopic()), userRepository.getById(dto.getUser()));
-		Post = repository.save(Post);
-		return new PostDTO(Post);
+		try {
+			Post Post = new Post(null, dto.getBody(), null, topicRepository.getById(dto.getTopic()), userRepository.getById(dto.getUser()));
+			Post = repository.save(Post);
+			return new PostDTO(Post);
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+			return null;
+		}		
 	}
 	
 	@Transactional
 	public PostDTO update(Long id, PostDTO dto) {
-		Post post = repository.getById(id);
+		try {
+			Post post = repository.getById(id);
+			
+			post.setBody(dto.getBody());
+			
+			post = repository.save(post);
+			return new PostDTO(post);
+		} catch (EntityNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		}		
+	}
+	
+	@Transactional
+	public PostDTO delete(Long id) {
+		try {
+			Post post = repository.getById(id);
+			repository.delete(post);
+			return new PostDTO(post);
+		} catch(EntityNotFoundException e)  {
+			e.printStackTrace();
+			return null;
+		}
 		
-		post.setBody(dto.getBody());
-		
-		post = repository.save(post);
-		return new PostDTO(post);
 	}
 }
